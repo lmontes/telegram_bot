@@ -21,12 +21,11 @@ if not config.isValid():
 
 token = config.value("token")
 
-gitUser = config.value("git_user")
-gitRepo = config.value("git_repo")
-gitPass = config.value("git_pass")
+gitUrl = config.value("git_url")
+logFile = config.value("log_file")
 command = config.value("command")
 
-logName = "process.log"
+
 
 proc = None
 
@@ -44,9 +43,8 @@ bot.set_update_listener(listener)
 
 @bot.message_handler(commands = ["update"])
 def command_update(m):
-    url = "https://" + gitUser + ":" + gitPass + "@bitbucket.org/" + gitUser + "/" + gitRepo
     bot.send_message(m.chat.id, "Updating git repository ...")
-    subprocess.Popen(["git", "pull", url])
+    subprocess.Popen(["git", "pull", gitUrl])
 
 
 @bot.message_handler(commands = ["stop"])
@@ -62,7 +60,7 @@ def command_stop(m):
 def command_start(m):
     global proc    
 
-    f = open(logName, "w")
+    f = open(logFile, "w")
     
     proc = subprocess.Popen(command.split(" "), stderr = f)
     bot.send_message(m.chat.id, "The pid is " + str(proc.pid))
@@ -83,7 +81,7 @@ def command_status(m):
 
 @bot.message_handler(commands = ["log"])
 def command_log(m):
-    f = open(logName, "r")
+    f = open(logFile, "r")
     log = f.read()
     if len(log) > 0:
         bot.send_message(m.chat.id, log)
